@@ -16,14 +16,6 @@ def _get_tokenizer(model_name_or_path, token=None):
         )
     return TOKENIZERS_CACHE[model_name_or_path]
 
-# src/metrics.py
-
-# (Keep imports and other parts of the file the same)
-import evaluate
-import numpy as np
-from transformers import EvalPrediction, AutoTokenizer
-# ... TOKENIZERS_CACHE and _get_tokenizer ...
-
 def compute_metrics(eval_pred: EvalPrediction, task_name: str, tokenizer_name: str, token: str = None):
     predictions_or_tuple, labels = eval_pred
 
@@ -45,24 +37,29 @@ def compute_metrics(eval_pred: EvalPrediction, task_name: str, tokenizer_name: s
             predictions = predictions_or_tuple
 
         if not isinstance(predictions, np.ndarray):
-            print(f"Warning: Unexpected predictions type: {type(predictions)}. Skipping ROUGE calculation.")
-            return {}
+             print(f"Warning: Unexpected predictions type: {type(predictions)}. Skipping ROUGE calculation.")
+             return {}
 
-        # --- FIX: Ensure arrays are integer type ---
+        # Ensure integer type first
         predictions = np.copy(predictions).astype(np.int64)
         labels = np.copy(labels).astype(np.int64)
-        # -------------------------------------------
 
         rouge_metric = evaluate.load("rouge")
         tokenizer = _get_tokenizer(tokenizer_name, token=token)
 
-        # Decode predictions
+        # --- FIX: Convert NumPy arrays to Python lists of lists ---
+        # Replace -100 with pad_token_id *before* converting to list
         predictions[predictions == -100] = tokenizer.pad_token_id
-        decoded_preds = tokenizer.batch_decode(predictions, skip_special_tokens=True)
-
-        # Decode labels
         labels[labels == -100] = tokenizer.pad_token_id
-        decoded_labels = tokenizer.batch_decode(labels, skip_special_tokens=True)
+
+        # Convert to list of lists
+        pred_ids_list = predictions.tolist()
+        label_ids_list = labels.tolist()
+        # --------------------------------------------------------
+
+        # Decode using the lists
+        decoded_preds = tokenizer.batch_decode(pred_ids_list, skip_special_tokens=True)
+        decoded_labels = tokenizer.batch_decode(label_ids_list, skip_special_tokens=True)
 
         # ROUGE post-processing
         decoded_preds = ["\n".join(pred.strip().split()) for pred in decoded_preds]
@@ -71,6 +68,10 @@ def compute_metrics(eval_pred: EvalPrediction, task_name: str, tokenizer_name: s
         result = rouge_metric.compute(
             predictions=decoded_preds, references=decoded_labels, use_stemmer=True
         )
+        # Make sure result is not None (can happen with empty preds/refs)
+        if result is None:
+            print("Warning: ROUGE computation returned None. Returning empty metrics.")
+            return {}
         result = {key: value * 100 for key, value in result.items()}
         return {k: round(v, 4) for k, v in result.items()}
 
