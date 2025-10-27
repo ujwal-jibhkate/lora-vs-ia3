@@ -112,7 +112,7 @@ def run_experiment(config: dict, token: str):
         output_dir=output_dir,
         num_train_epochs=config.get("num_epochs", 3),
         per_device_train_batch_size=config.get("batch_size", 4),
-        per_device_eval_batch_size=config.get("batch_size", 4),
+        per_device_eval_batch_size=2,
         gradient_accumulation_steps=config.get("gradient_accumulation", 1), # Added for flexibility
         warmup_steps=config.get("warmup_steps", 50),
         learning_rate=config.get("learning_rate", 5e-5), # Added learning rate config
