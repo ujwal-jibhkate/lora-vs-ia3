@@ -38,29 +38,37 @@ def run_experiment(config: dict, token: str):
         split='train',
         token=token
     )
-    # Correctly load the validation split based on task
-    validation_split = 'validation'
+    # Correctly load the validation split based on tas# --- FIX: Load only a SUBSET for evaluation during training ---
+    print(f"--- Loading SUBSET of evaluation data for task: {config['task_name']} ---")
+    eval_split_name = 'validation'
+    eval_subset_size = config.get("eval_subset_size", 100) # Default to 100 samples
+
     if config['task_name'] == 'dolly':
-        # Dolly doesn't have a standard validation split, use a slice of train
-        # Note: In a real scenario, you'd create a proper split beforehand
-        print("--- Using train split slice for Dolly validation ---")
-        train_eval_split = train_dataset.train_test_split(test_size=0.1) # Use 10% for eval
-        train_dataset = train_eval_split['train']
-        eval_dataset = train_eval_split['test']
-    elif config['task_name'] == 'sst2':
-         eval_dataset = load_and_preprocess_dataset(
+        print("--- Using train split slice for Dolly validation SUBSET ---")
+        full_train_dataset = load_and_preprocess_dataset(
+            task_name=config['task_name'], split='train', token=token
+        )
+        # Ensure subset size isn't larger than 10% (or available data)
+        eval_subset_size = min(eval_subset_size, max(1, int(0.1 * len(full_train_dataset))))
+        train_eval_split = full_train_dataset.train_test_split(test_size=eval_subset_size, seed=42) # Use seed for consistency
+        train_dataset = train_eval_split['train'] # Overwrite train_dataset if splitting from train
+        eval_dataset_subset = train_eval_split['test']
+        print(f"Using {len(eval_dataset_subset)} samples for Dolly eval.")
+
+    elif config['task_name'] in ['sst2', 'samsum']:
+        full_eval_dataset = load_and_preprocess_dataset(
             task_name=config['task_name'],
-            split='validation', # SST2 has a validation split
+            split=eval_split_name,
             token=token
         )
-    elif config['task_name'] == 'samsum':
-        eval_dataset = load_and_preprocess_dataset(
-            task_name=config['task_name'],
-            split='validation', # Samsum has a validation split
-            token=token
-        )
+        # Ensure subset size isn't larger than available data
+        eval_subset_size = min(eval_subset_size, len(full_eval_dataset))
+        eval_indices = range(eval_subset_size) # Select the first N samples
+        eval_dataset_subset = full_eval_dataset.select(eval_indices)
+        print(f"Using {len(eval_dataset_subset)} samples out of {len(full_eval_dataset)} for {config['task_name']} eval.")
     else:
-         raise ValueError(f"Unhandled task for validation split: {config['task_name']}")
+        raise ValueError(f"Unhandled task for validation split: {config['task_name']}")
+# --- END FIX ---
 
 
     print(f"--- Loading model: {config['model_name']} ---")
@@ -136,7 +144,7 @@ def run_experiment(config: dict, token: str):
         model=peft_model,
         args=training_args,
         train_dataset=train_dataset,
-        eval_dataset=eval_dataset,
+        eval_dataset=eval_dataset_subset,
         tokenizer=tokenizer,
         data_collator=data_collator,
         compute_metrics=compute_metrics_partial if config['task_name'] != 'dolly' else None, # Only pass if needed
