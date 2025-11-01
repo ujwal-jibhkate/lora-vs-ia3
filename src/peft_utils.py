@@ -81,7 +81,7 @@ def apply_peft_adapter(model, peft_config: dict):
         feedforward_modules = []
         
         # This regex finds typical feedforward/MLP layer names
-        ff_pattern = r".*(mlp|fc|wi|w0|w1|w2|down_proj|out_lin).*" 
+        ff_pattern = r".*(mlp|fc|wi|w0|w1|w2|wo|down_proj|out_lin).*" # <-- Added 'wo'
         
         attention_modules = [m for m in target_modules if not re.match(ff_pattern, m)]
         feedforward_modules = [m for m in target_modules if re.match(ff_pattern, m)]
