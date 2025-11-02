@@ -125,7 +125,6 @@ def run_experiment(config: dict, token: str):
     output_dir = f"./results/{config.get('run_name', 'experiment')}"
 
 
-    # --- THIS IS THE CRITICAL FIX ---
     # Define common arguments for both trainers
     common_args = {
         "output_dir": output_dir,
@@ -145,8 +144,9 @@ def run_experiment(config: dict, token: str):
         "metric_for_best_model": metric_to_optimize,
         "greater_is_better": metric_to_optimize != "eval_loss",
         "report_to": "wandb",
-        "fp16": False,
+        "fp16": True,
         "bf16": False,
+        "max_grad_norm": 0.3,
     }
 
     # Select the correct Trainer and Arguments based on the task
@@ -166,7 +166,7 @@ def run_experiment(config: dict, token: str):
         )
         TrainerClass = Trainer
         metrics_fn_to_pass = compute_metrics_partial # Enable Acc/F1 metrics
-    # --- END FIX ---
+ 
 
 
     # --- 7. Initialize Trainer ---
