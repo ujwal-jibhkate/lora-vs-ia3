@@ -62,7 +62,7 @@ def run_experiment(config: dict, token: str):
         )
         total_size = len(full_train_for_split)
         if eval_subset_size >= total_size * 0.5:
-             eval_subset_size = int(total_size * 0.1)
+            eval_subset_size = int(total_size * 0.1)
         if train_subset_size is None or (train_subset_size + eval_subset_size) > total_size:
             train_subset_size = total_size - eval_subset_size
         split_dataset = full_train_for_split.train_test_split(test_size=eval_subset_size, seed=42)
@@ -147,6 +147,7 @@ def run_experiment(config: dict, token: str):
         "fp16": True,
         "bf16": False,
         "max_grad_norm": 0.3,
+        "optim": "paged_adamw_8bit",
     }
 
     # Select the correct Trainer and Arguments based on the task
