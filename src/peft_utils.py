@@ -74,7 +74,7 @@ def apply_peft_adapter(model, peft_config: dict):
             lora_dropout=peft_config.get("lora_dropout", 0.1),
             target_modules=target_modules,
             bias="none",
-            modules_to_save=["lm_head"],
+            modules_to_save=[],
         )
     
     elif peft_method == "ia3":
@@ -94,7 +94,7 @@ def apply_peft_adapter(model, peft_config: dict):
             task_type=task_type,
             target_modules=target_modules,
             feedforward_modules=feedforward_modules,
-            modules_to_save=["lm_head"],
+            modules_to_save=[],
         )
         
     else:
