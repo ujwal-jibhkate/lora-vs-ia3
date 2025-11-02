@@ -145,7 +145,7 @@ def run_experiment(config: dict, token: str):
         "metric_for_best_model": metric_to_optimize,
         "greater_is_better": metric_to_optimize != "eval_loss",
         "report_to": "wandb",
-        "fp16": True,
+        "fp16": False,
         "bf16": False,
     }
 
