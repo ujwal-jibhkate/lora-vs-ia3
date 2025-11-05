@@ -19,8 +19,8 @@ PEFT_TARGET_MODULES_MAP = {
         "lora": ["q", "v"],
         "ia3": ["k", "v", "wo"], # As per the IA3 paper
     },
-  
-    "PythiaForCausalLM": {
+
+    "GPTNeoXForCausalLM": { 
         "lora": ["query_key_value", "dense", "dense_4h_to_h"],
         "ia3":  ["query_key_value", "dense", "dense_4h_to_h"],
     }
