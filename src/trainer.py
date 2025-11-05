@@ -6,7 +6,7 @@ from functools import partial
 from transformers import (
     DataCollatorForSeq2Seq,
     DataCollatorWithPadding,
-    # Import all necessary classes
+    DataCollatorForLanguageModeling,
     Trainer,
     TrainingArguments,
     Seq2SeqTrainer,
@@ -104,10 +104,15 @@ def run_experiment(config: dict, token: str):
     run.summary["trainable_percent"] = (trainable_params / total_params) * 100 if total_params > 0 else 0
 
 
-    # --- 5. Data Collator (Unchanged) ---
+    # --- 5. Data Collator ---
     if config['task_name'] == "samsum":
+        print("--- Using DataCollatorForSeq2Seq ---")
         data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=peft_model)
-    else:
+    elif config['task_name'] == "dolly":
+        print("--- Using DataCollatorForLanguageModeling (Causal LM) ---")
+        data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm=False)
+    else: # This is for 'sst2'
+        print("--- Using DataCollatorWithPadding (Classification) ---")
         data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
     # --- 6. Metrics Function (Unchanged) ---
@@ -178,7 +183,7 @@ def run_experiment(config: dict, token: str):
         eval_dataset=eval_dataset_subset,
         tokenizer=tokenizer,
         data_collator=data_collator,
-        compute_metrics=metrics_fn_to_pass, # Pass the correct function (often None)
+        compute_metrics=metrics_fn_to_pass,
     )
 
     # --- 8. Train and Evaluate ---
