@@ -19,11 +19,12 @@ PEFT_TARGET_MODULES_MAP = {
         "lora": ["q", "v"],
         "ia3": ["k", "v", "wo"], # As per the IA3 paper
     },
-    # Gemma
-    "GemmaForCausalLM": {
-        "lora": ["q_proj", "k_proj", "v_proj", "o_proj"],
-        "ia3": ["q_proj", "k_proj", "v_proj", "o_proj", "down_proj"], 
-    },
+  
+    "PythiaForCausalLM": {
+        "lora": ["query_key_value", "dense", "dense_4h_to_h"],
+        "ia3":  ["query_key_value", "dense", "dense_4h_to_h"],
+    }
+    #
 }
 
 # This maps our task names to the PEFT library's TaskType enum
@@ -74,7 +75,6 @@ def apply_peft_adapter(model, peft_config: dict):
             lora_dropout=peft_config.get("lora_dropout", 0.1),
             target_modules=target_modules,
             bias="none",
-            modules_to_save=[],
         )
     
     elif peft_method == "ia3":
@@ -82,7 +82,7 @@ def apply_peft_adapter(model, peft_config: dict):
         feedforward_modules = []
         
         # This regex finds typical feedforward/MLP layer names
-        ff_pattern = r".*(mlp|fc|wi|w0|w1|w2|wo|down_proj|out_lin).*"
+        ff_pattern = r".*(mlp|fc|wi|w0|w1|w2|wo|down_proj|out_lin|dense).*"
         
         feedforward_modules = [m for m in target_modules if re.match(ff_pattern, m)]
 
@@ -94,7 +94,6 @@ def apply_peft_adapter(model, peft_config: dict):
             task_type=task_type,
             target_modules=target_modules,
             feedforward_modules=feedforward_modules,
-            modules_to_save=[],
         )
         
     else:

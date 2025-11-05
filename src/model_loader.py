@@ -19,7 +19,8 @@ TASK_TO_MODEL_CLASS = {
 MODEL_NAME_MAP = {
     "distilbert": "distilbert-base-uncased",
     "t5": "t5-small",
-    "gemma": "google/gemma-2b",
+    #"gemma": "google/gemma-2b",
+    "pythia": "EleutherAI/pythia-2.8b"
 }
 
 
@@ -65,7 +66,8 @@ def load_base_model(model_name: str, task_name: str, token: str = None): # <-- F
             hf_model_name,
             quantization_config=bnb_config,
             device_map="auto",
-            token=token  # <-- FIX: Pass token
+            token=token, 
+            trust_remote_code=True
         )
     except Exception as e:
         # (Fallback logic is unchanged)
@@ -73,7 +75,8 @@ def load_base_model(model_name: str, task_name: str, token: str = None): # <-- F
         print("Falling back to standard precision (float32) loading.")
         model = model_class.from_pretrained(
             hf_model_name,
-            token=token # <-- FIX: Pass token here too
+            token=token,  # <-- FIX: Pass token here too
+            trust_remote_code=True
         )
         
     # (pad_token_id config is unchanged)
