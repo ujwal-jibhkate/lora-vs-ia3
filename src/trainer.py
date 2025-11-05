@@ -155,23 +155,23 @@ def run_experiment(config: dict, token: str):
         "optim": "paged_adamw_8bit",
     }
 
-    # Select the correct Trainer and Arguments based on the task
-    if config['task_name'] == "samsum" or config['task_name'] == "dolly":
+    if config['task_name'] == "samsum": # <-- WAS: or config['task_name'] == "dolly"
         print("--- Using Seq2SeqTrainer (for eval_loss only) ---")
         training_args = Seq2SeqTrainingArguments(
             **common_args
-            # We DO NOT pass predict_with_generate=True to avoid RAM crash
         )
         TrainerClass = Seq2SeqTrainer
         metrics_fn_to_pass = None # Disable ROUGE metrics during training
     
-    else: # This is for 'sst2'
-        print("--- Using standard Trainer (with metrics) ---")
+    else: # This is for 'sst2' AND 'dolly'
+        print("--- Using standard Trainer ---")
         training_args = TrainingArguments(
             **common_args
         )
         TrainerClass = Trainer
-        metrics_fn_to_pass = compute_metrics_partial # Enable Acc/F1 metrics
+        # Only compute metrics for sst2
+        metrics_fn_to_pass = compute_metrics_partial if config['task_name'] == 'sst2' else None
+    # --- END FIX ---
  
 
 
