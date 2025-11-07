@@ -12,8 +12,8 @@ DATASET_CONFIGS = {
         "model_tokenizer_name": "distilbert-base-uncased",
     },
     "samsum": {
-        "hf_name": "knkarthick/samsum",  # <-- FIX 1: Updated path
-        "hf_subset": None,              # <-- FIX 1: This is now correct
+        "hf_name": "knkarthick/samsum",  
+        "hf_subset": None,            
         "model_tokenizer_name": "t5-small",
     },
     "dolly": {
@@ -24,7 +24,7 @@ DATASET_CONFIGS = {
 }
 
 
-def load_and_preprocess_dataset(task_name: str, split: str = "train", token: str = None): # <-- FIX 2: Added token
+def load_and_preprocess_dataset(task_name: str, split: str = "train", token: str = None): 
     """
     Loads, preprocesses, and tokenizes a dataset for a specific task.
 
@@ -43,7 +43,7 @@ def load_and_preprocess_dataset(task_name: str, split: str = "train", token: str
     # for this task. This is critical.
     tokenizer = AutoTokenizer.from_pretrained(
         config["model_tokenizer_name"], 
-        token=token  # <-- FIX 2: Pass token
+        token=token  
     )
     
     # Handle padding for T5 vs. other models
@@ -58,18 +58,17 @@ def load_and_preprocess_dataset(task_name: str, split: str = "train", token: str
             config["hf_name"], 
             config["hf_subset"], 
             split=split, 
-            token=token  # <-- FIX 2: Pass token
+            token=token  
         )
     else:
         dataset = load_dataset(
             config["hf_name"], 
             split=split, 
-            token=token  # <-- FIX 2: Pass token
+            token=token 
         )
 
     # 3. Define task-specific preprocessing functions
     def preprocess_sst2(examples):
-        # (Rest of this function is unchanged)
         tokenized_inputs = tokenizer(
             examples["sentence"], 
             truncation=True, 
@@ -80,7 +79,6 @@ def load_and_preprocess_dataset(task_name: str, split: str = "train", token: str
         return tokenized_inputs
 
     def preprocess_samsum(examples):
-        # (Rest of this function is unchanged)
         prompt = "summarize: "
         inputs = [prompt + doc for doc in examples["dialogue"]]
         
@@ -103,7 +101,6 @@ def load_and_preprocess_dataset(task_name: str, split: str = "train", token: str
         return model_inputs
 
     def preprocess_dolly(examples):
-        # (Rest of this function is unchanged)
         prompts = []
         for instruction, context, response in zip(examples['instruction'], examples['context'], examples['response']):
             text = "Instruction:\n"
@@ -126,19 +123,16 @@ def load_and_preprocess_dataset(task_name: str, split: str = "train", token: str
 
     # 4. Apply the correct preprocessing
     if task_name == "sst2":
-        # (This section is unchanged)
         tokenized_dataset = dataset.map(preprocess_sst2, batched=True)
         tokenized_dataset = tokenized_dataset.remove_columns(["sentence", "idx"])
         tokenized_dataset.set_format("torch", columns=["input_ids", "attention_mask", "labels"])
         
     elif task_name == "samsum":
-        # (This section is unchanged)
         tokenized_dataset = dataset.map(preprocess_samsum, batched=True)
         tokenized_dataset = tokenized_dataset.remove_columns(["id", "dialogue", "summary"])
         tokenized_dataset.set_format("torch", columns=["input_ids", "attention_mask", "labels"])
 
     elif task_name == "dolly":
-        # (This section is unchanged)
         tokenized_dataset = dataset.map(preprocess_dolly, batched=True)
         tokenized_dataset = tokenized_dataset.remove_columns(["instruction", "context", "response", "category"])
         tokenized_dataset.set_format("torch", columns=["input_ids", "attention_mask", "labels"])
