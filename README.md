@@ -30,6 +30,50 @@ After 12+ experiments, our data reveals a clear and powerful conclusion:
 
 -----
 
+**## 🔬 A Brief Look at the Methods**
+
+**Both LoRA and IA³ are PEFT methods that freeze the original model's weights ($W_0$) and inject a small number of new, trainable parameters. Their fundamental difference lies in _how_ they apply their adaptation.**
+
+### **LoRA (Low-Rank Adaptation)**
+
+-   **Theory:** LoRA hypothesizes that the _change_ in weights ($\Delta W$) during fine-tuning has a low "intrinsic rank." It replaces this $\Delta W$ with two smaller, low-rank matrices, $A$ and $B$.
+    
+-   **Analogy:** LoRA **adds** a new, small "bypass" layer in parallel with the original layer. It learns _new_ knowledge without touching the old.
+    
+-   Formula: The output of a LoRA-adapted layer is:
+    
+    $$h(x) = W_0x + \Delta Wx = W_0x + (BA)x$$
+    
+    Where only $B$ (e.g., $d \times r$) and $A$ (e.g., $r \times k$) are trainable.
+    
+
+### **IA³ (Infused Adapter by Inhibiting and Amplifying Inner Activations)**
+
+-   **Theory:** IA³ hypothesizes that fine-tuning is about _rescaling_ the existing knowledge pathways, not adding new ones. It introduces a single learned vector, $l$, that performs element-wise multiplication.
+    
+-   **Analogy:** IA³ **multiplies** the output of a layer by a learned "volume knob." It "turns up" important activations and "turns down" (inhibits) irrelevant ones.
+    
+-   Formula: The output of an IA³-adapted layer (like an FFN) is:
+    
+    $$h_{new}(x) = l \odot h_{original}(x)$$
+    
+    Where only the vector $l$ (which has the same dimension as the activation $h$) is trainable. This results in far fewer parameters than LoRA.
+    
+
+----------
+
+**## 📈 Weights & Biases Reports**
+
+**You can explore the detailed metrics, loss curves, and system stats for each experiment live on Weights & Biases:**
+
+-   **[Experiment 1: DistilBERT (SST-2)](https://api.wandb.ai/links/iu-aml-hw4-team/80hgmhpn)**
+    
+-   **[Experiment 2: T5 (SAMSum)](https://api.wandb.ai/links/iu-aml-hw4-team/e2h3feyf)**
+    
+-   **Experiment 3: Pythia (Dolly-15k):** Not available. These experiments were run in a minimal, standalone notebook to debug numerical stability, and logging was not configured.
+    
+-----
+
 ## 📊 Final Results Dashboard
 
 This table summarizes the final `eval_loss` (lower is better) for all 12 successful experiments.
@@ -129,7 +173,7 @@ lora-vs-ia3/
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/YOUR-USERNAME/lora-vs-ia3.git
+    git clone https://github.com/ujwal-jibhkate/lora-vs-ia3.git
     cd lora-vs-ia3
     ```
 2.  **Create a virtual environment** and install requirements:
