@@ -7,14 +7,11 @@ from transformers import EvalPrediction
 from src.metrics import compute_metrics
 from dotenv import load_dotenv
 
-# (Keep token loading)
 load_dotenv()
 HF_TOKEN = os.getenv("HF_TOKEN")
 assert HF_TOKEN is not None, "HF_TOKEN not found in .env file."
-# ----------------------------------
 
 def test_sst2_metrics():
-    # (This function is unchanged)
     print("\nTesting metrics for: sst2")
     logits = np.array([
         [0.9, 0.1], [0.1, 0.9], [0.2, 0.8], [0.7, 0.3]
@@ -48,7 +45,6 @@ def test_sst2_metrics():
 # ---------------------------------------------
 
 def test_dolly_metrics():
-    # (This function is unchanged)
     print("\nTesting metrics for: dolly")
     eval_pred = EvalPrediction(predictions=None, label_ids=None)
     results = compute_metrics(

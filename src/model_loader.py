@@ -9,7 +9,6 @@ from transformers import (
 )
 import torch
 
-# (TASK_TO_MODEL_CLASS and MODEL_NAME_MAP are unchanged)
 TASK_TO_MODEL_CLASS = {
     "sst2": AutoModelForSequenceClassification,
     "samsum": AutoModelForSeq2SeqLM,
@@ -24,7 +23,7 @@ MODEL_NAME_MAP = {
 }
 
 
-def load_base_model(model_name: str, task_name: str, token: str = None): # <-- FIX: Added token
+def load_base_model(model_name: str, task_name: str, token: str = None):
     """
     Loads a base model and its tokenizer, configured for 8-bit loading.
 
@@ -53,10 +52,9 @@ def load_base_model(model_name: str, task_name: str, token: str = None): # <-- F
     # 2. Load Tokenizer
     tokenizer = AutoTokenizer.from_pretrained(
         hf_model_name, 
-        token=token  # <-- FIX: Pass token
+        token=token
     )
     
-    # (pad token logic is unchanged)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
         
@@ -70,16 +68,14 @@ def load_base_model(model_name: str, task_name: str, token: str = None): # <-- F
             trust_remote_code=True
         )
     except Exception as e:
-        # (Fallback logic is unchanged)
         print(f"8-bit loading failed (this is expected on CPU-only machines): {e}")
         print("Falling back to standard precision (float32) loading.")
         model = model_class.from_pretrained(
             hf_model_name,
-            token=token,  # <-- FIX: Pass token here too
+            token=token,  
             trust_remote_code=True
         )
         
-    # (pad_token_id config is unchanged)
     if model_name in ["t5", "gemma"]:
         model.config.pad_token_id = tokenizer.pad_token_id
 

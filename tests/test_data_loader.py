@@ -2,14 +2,14 @@
 
 import pytest
 import torch
-import os  # <-- Import os
+import os  
 from datasets import Dataset
 from src.data_loader import load_and_preprocess_dataset, DATASET_CONFIGS
-from dotenv import load_dotenv  # <-- Import dotenv
+from dotenv import load_dotenv  
 
 # --- Load Environment Variables ---
-load_dotenv() # This loads the .env file
-HF_TOKEN = os.getenv("HF_TOKEN") # Reads the token
+load_dotenv() 
+HF_TOKEN = os.getenv("HF_TOKEN") 
 assert HF_TOKEN is not None, "HF_TOKEN not found in .env file. Please create .env and add HF_TOKEN=hf_..."
 # ----------------------------------
 
@@ -22,7 +22,6 @@ def test_load_all_tasks_smoke_test(task_name):
     # (Function description is unchanged)
     print(f"\nRunning smoke test for task: {task_name}")
     
-    # (split logic is unchanged)
     split = 'train[:10]'
     if task_name == "sst2":
         split = 'validation[:10]'
@@ -34,7 +33,7 @@ def test_load_all_tasks_smoke_test(task_name):
         dataset = load_and_preprocess_dataset(
             task_name=task_name, 
             split=split, 
-            token=HF_TOKEN # <-- PASS TOKEN
+            token=HF_TOKEN 
         )
         
         # (All assertions are unchanged)
@@ -71,7 +70,6 @@ def test_load_all_tasks_smoke_test(task_name):
         pytest.fail(f"Test failed for task {task_name} with exception: {e}")
 
 def test_invalid_task_name():
-    # (This test is unchanged)
     print("\nRunning test for invalid task name...")
     with pytest.raises(ValueError, match="Unknown task name"):
         load_and_preprocess_dataset(task_name="not_a_real_task")

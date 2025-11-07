@@ -23,8 +23,6 @@ MODEL_TASK_PAIRS = [
 
 PEFT_METHODS = ["lora", "ia3"]
 
-
-
 @pytest.mark.parametrize("model_name, task_name", MODEL_TASK_PAIRS)
 @pytest.mark.parametrize("peft_method", PEFT_METHODS)
 def test_apply_peft_adapter(model_name, task_name, peft_method):
@@ -57,14 +55,10 @@ def test_apply_peft_adapter(model_name, task_name, peft_method):
         peft_model = apply_peft_adapter(base_model, peft_config)
         
         # --- Strict Validation Checks ---
-        
-        # FIX 1: This check MUST come first.
-        # It ensures the model was successfully converted.
+       
         assert isinstance(peft_model, PeftModel), \
             f"Model is not a PeftModel instance. Got {type(peft_model)} instead."
         
-        # FIX 2: This is a more robust way to get trainable params
-        # that doesn't rely on the helper function.
         trainable_params = sum(p.numel() for p in peft_model.parameters() if p.requires_grad)
         
         print(f"PEFT model created. Trainable params: {trainable_params}")

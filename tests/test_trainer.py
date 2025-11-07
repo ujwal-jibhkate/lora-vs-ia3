@@ -1,19 +1,18 @@
 # tests/test_trainer.py
 
 import pytest
-from pytest import fail, skip # Explicit imports
+from pytest import fail, skip 
 import os
 from unittest.mock import MagicMock, patch
 from dotenv import load_dotenv
 
 # --- Load Environment Variables ---
-load_dotenv() # Load .env file
-HF_TOKEN = os.getenv("HF_TOKEN") # Reads the token
+load_dotenv() 
+HF_TOKEN = os.getenv("HF_TOKEN") 
 assert HF_TOKEN is not None, "HF_TOKEN not found in .env file. Please create .env and add HF_TOKEN=hf_..."
 print(f"--- Loaded HF_TOKEN starting with: {HF_TOKEN[:6]}... ---") # Debug print
 # ----------------------------------
 
-# This is a 'dummy' or 'mock' config for one test run
 DUMMY_CONFIG = {
     "task_name": "sst2",
     "model_name": "distilbert",
@@ -23,7 +22,7 @@ DUMMY_CONFIG = {
     "lora_alpha": 16,
     "num_epochs": 1,
     "batch_size": 2,
-    "wandb_project": "test_project" # Use a specific test project name
+    "wandb_project": "test_project" 
 }
 
 @pytest.fixture
@@ -62,7 +61,7 @@ def mock_dependencies(mocker):
 
     # Mock peft utils
     mock_peft_model = MagicMock()
-    mock_peft_model.get_num_trainable_parameters.return_value = 1000 # Keep this for legacy check if needed
+    mock_peft_model.get_num_trainable_parameters.return_value = 1000 
     # Mock parameters() to avoid ZeroDivisionError
     mock_param_1 = MagicMock()
     mock_param_1.numel.return_value = 100_000_000
@@ -94,7 +93,7 @@ def mock_dependencies(mocker):
         "trainer_class": mock_trainer_class,
         "trainer_instance": mock_trainer_instance,
         "wandb_init": mock_wandb_init,
-        "mock_run": mock_run # Return the mock run object
+        "mock_run": mock_run 
     }
 
 def test_run_experiment_wiring(mock_dependencies):
@@ -175,5 +174,3 @@ def test_run_experiment_wiring(mock_dependencies):
     mock_run.finish.assert_called_once()
 
     print("--- Wiring test passed! ---")
-
-# End of tests/test_trainer.py

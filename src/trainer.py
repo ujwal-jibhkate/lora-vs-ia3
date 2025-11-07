@@ -31,7 +31,7 @@ def run_experiment(config: dict, token: str):
         name=config.get("run_name"),
     )
 
-    # --- 2. Load Data Subsets (Unchanged) ---
+    # --- 2. Load Data Subsets ---
     print(f"--- Loading dataset: {config['task_name']} ---")
     tokenizer_name = MODEL_NAME_MAP[config['model_name']]
 
@@ -84,7 +84,7 @@ def run_experiment(config: dict, token: str):
     else:
          raise ValueError(f"Unhandled task for validation split: {config['task_name']}")
 
-    # --- 3. Load Model (Unchanged) ---
+    # --- 3. Load Model ---
     print(f"--- Loading model: {config['model_name']} ---")
     base_model, tokenizer = load_base_model(
         model_name=config['model_name'],
@@ -92,11 +92,10 @@ def run_experiment(config: dict, token: str):
         token=token
     )
 
-    # --- 4. Apply PEFT Adapter (Unchanged) ---
+    # --- 4. Apply PEFT Adapter ---
     print(f"--- Applying PEFT adapter: {config['peft_method']} ---")
     peft_model = apply_peft_adapter(base_model, config)
     peft_model.print_trainable_parameters()
-    # (W&B logging of params...)
     trainable_params = sum(p.numel() for p in peft_model.parameters() if p.requires_grad)
     total_params = sum(p.numel() for p in peft_model.parameters())
     run.summary["trainable_params"] = trainable_params
@@ -115,7 +114,7 @@ def run_experiment(config: dict, token: str):
         print("--- Using DataCollatorWithPadding (Classification) ---")
         data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-    # --- 6. Metrics Function (Unchanged) ---
+    # --- 6. Metrics Function ---
     compute_metrics_partial = partial(
         compute_metrics,
         task_name=config['task_name'],
@@ -135,7 +134,7 @@ def run_experiment(config: dict, token: str):
         "output_dir": output_dir,
         "num_train_epochs": config.get("num_epochs", 3),
         "per_device_train_batch_size": config.get("batch_size", 4),
-        "per_device_eval_batch_size": 2, # Keep eval batch size small
+        "per_device_eval_batch_size": 2, 
         "gradient_accumulation_steps": config.get("gradient_accumulation", 1),
         "warmup_steps": config.get("warmup_steps", 50),
         "learning_rate": config.get("learning_rate", 5e-5),
@@ -155,13 +154,13 @@ def run_experiment(config: dict, token: str):
         "optim": "paged_adamw_8bit",
     }
 
-    if config['task_name'] == "samsum": # <-- WAS: or config['task_name'] == "dolly"
+    if config['task_name'] == "samsum":
         print("--- Using Seq2SeqTrainer (for eval_loss only) ---")
         training_args = Seq2SeqTrainingArguments(
             **common_args
         )
         TrainerClass = Seq2SeqTrainer
-        metrics_fn_to_pass = None # Disable ROUGE metrics during training
+        metrics_fn_to_pass = None
     
     else: # This is for 'sst2' AND 'dolly'
         print("--- Using standard Trainer ---")
@@ -171,9 +170,6 @@ def run_experiment(config: dict, token: str):
         TrainerClass = Trainer
         # Only compute metrics for sst2
         metrics_fn_to_pass = compute_metrics_partial if config['task_name'] == 'sst2' else None
-    # --- END FIX ---
- 
-
 
     # --- 7. Initialize Trainer ---
     trainer = TrainerClass(
