@@ -34,24 +34,21 @@ After 12+ experiments, our data reveals a clear and powerful conclusion:
 
 This table summarizes the final `eval_loss` (lower is better) for all 12 successful experiments.
 
-| **Model** | **Task** | **PEFT Method** | **Rank (r)** | **Epochs** | **Learning Rate** | **Status** | **Eval Loss** | **Trainable Params (%)** |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **DistilBERT** | `sst2` | **IA³** | **N/A** | 3 | 5e-4 | **Completed** | **🏆 0.3196** | **0.01%** |
-| `distilbert` | `sst2` | `lora` | 8 | 3 | 5e-4 | **Completed** | 0.3594 | 1.09% |
-| `distilbert` | `sst2` | `lora` | 16 | 3 | 5e-4 | **Completed** | 0.3603 | 1.31% |
-| | | | | | | | | |
-| **T5** | `samsum` | **LoRA** | **128** | 3 | 5e-4 | **Completed** | **🏆 0.3624** | **7.23%** |
-| `t5` | `samsum` | `lora` | 64 | 3 | 5e-4 | **Completed** | 0.3689 | \~3.86% |
-| `t5` | `samsum` | `lora` | 32 | 3 | 5e-4 | **Completed** | 0.3761 | \~1.93% |
-| `t5` | `samsum` | `lora` | 16 | 3 | 5e-4 | **Completed** | 0.3819 | 0.965% |
-| `t5` | `samsum` | `lora` | 8 | 3 | 5e-4 | **Completed** | 0.3880 | 0.485% |
-| `t5` | `samsum` | `ia3` | N/A | 3 | 5e-4 | **Completed** | 0.4652 | 0.071% |
-| | | | | | | | | |
-| **Pythia** | `dolly` | **LoRA** | **128** | 1 | 2e-5 | **Completed** | **🏆 1.9838** | **3.99%** |
-| `pythia` | `dolly` | `lora` | 32 | 1 | 2e-5 | **Completed** | 2.0040 | 1.03% |
-| `pythia` | `dolly` | `lora` | 8 | 1 | 2e-5 | **Completed** | 2.0333 | 0.26% |
-| `pythia` | `dolly` | `ia3` | N/A | 1 | 2e-5 | **Completed** | 2.2410 | 0.024% |
-
+| Model | Task | PEFT Method | Rank (r) | Epochs | Learning Rate | Status | Eval Loss | Trainable Params (%) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| DistilBERT | sst2 | IA³ | N/A | 3 | 5e-4 | Completed | 🏆 0.3196 | 0.01% |
+| DistilBERT | sst2 | LoRA | 8 | 3 | 5e-4 | Completed | 0.3594 | 1.09% |
+| DistilBERT | sst2 | LoRA | 16 | 3 | 5e-4 | Completed | 0.3603 | 1.31% |
+| T5 | samsum | LoRA | 128 | 3 | 5e-4 | Completed | 🏆 0.3624 | 7.23% |
+| T5 | samsum | LoRA | 64 | 3 | 5e-4 | Completed | 0.3689 | ~3.86% |
+| T5 | samsum | LoRA | 32 | 3 | 5e-4 | Completed | 0.3761 | ~1.93% |
+| T5 | samsum | LoRA | 16 | 3 | 5e-4 | Completed | 0.3819 | 0.965% |
+| T5 | samsum | LoRA | 8 | 3 | 5e-4 | Completed | 0.3880 | 0.485% |
+| T5 | samsum | IA³ | N/A | 3 | 5e-4 | Completed | 0.4652 | 0.071% |
+| Pythia | dolly | LoRA | 128 | 1 | 2e-5 | Completed | 🏆 1.9838 | 3.99% |
+| Pythia | dolly | LoRA | 32 | 1 | 2e-5 | Completed | 2.0040 | 1.03% |
+| Pythia | dolly | LoRA | 8 | 1 | 2e-5 | Completed | 2.0333 | 0.26% |
+| Pythia | dolly | IA³ | N/A | 1 | 2e-5 | Completed | 2.2410 | 0.024% |
 -----
 
 ## 🔬 In-Depth Analysis & Key Insights
